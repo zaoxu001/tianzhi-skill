@@ -12,13 +12,21 @@
 
 这份 skill 把前者交给一个有 181 个测试锁着的确定性库，把后者约束成「读 `evidence` 字段，或者不引」。
 
-## 装
+## 放到哪里
+
+同一份内容，三种位置，按你的 AI 挑一个：
+
+| 位置 | 谁会读 |
+|---|---|
+| `AGENTS.md`（仓库根目录） | 跨工具通用约定，三十多个 agent 都读——Codex、Copilot、Cursor、Gemini CLI、Windsurf、Devin、Zed、Aider… |
+| `.claude/skills/tianzhi-core/` | Claude Code。带 frontmatter，按需加载而不是一直占着上下文 |
+| 直接贴进聊天窗口 | 不方便放文件的场合。网页版、手机上、一次性对话都走这条 |
 
 ```bash
 git clone https://github.com/zaoxu001/tianzhi-skill
 ```
 
-Claude Code 从仓库根目录的 `.claude/skills/` 读取 skill。放进你的项目，或者把 `.claude/skills/bazi/` 复制到你自己的仓库里。
+两份文件同源：`AGENTS.md` 是 `SKILL.md` 去掉 frontmatter 的版本，**改动以 SKILL.md 为正本**。
 
 底下的库单独装：
 
