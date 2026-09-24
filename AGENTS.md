@@ -14,22 +14,22 @@ pip install tianzhi-core
 
 ## 有什么
 
+不用记，也不用我在这儿抄一遍——运行时问它自己：
+
 ```python
-from tianzhi_core.calendar import jieqi, solar_time   # 节气精确时刻、真太阳时
-from tianzhi_core.core import ganzhi, wuxing          # 干支五行、藏干、刑冲合害、人元司令
-from tianzhi_core.bazi import (
-    chart,       # 排盘
-    strength,    # 五行力量、日主旺衰
-    tiaohou,     # 调候
-    geju,        # 月令格局
-    yongshen,    # 用喜忌仇闲
-    luck_cycle,  # 起运、大运、流年、流月
-    interact,    # 岁运对原局的刑冲合害
-    score,       # 某年的相对分与曲线
-    hepan,       # 两张盘的关系
-    shensha,     # 神煞（参考层，取用不采信）
-)
+from tianzhi_core import catalog
+
+catalog.layers()                            # 三层各是什么
+print(catalog.as_text())                    # 全部方法：怎么调、作用、返回哪些字段
+catalog.tools('bazi')                       # 只看某一层
+catalog.describe('bazi.yongshen.select')    # 单个方法的完整说明
 ```
+
+清单是从代码现读的：**作用取自 docstring 首行，签名取自真实签名，返回的字段取自 dataclass**。
+代码改了清单跟着改，不会出现「文档说有这个方法，装上去没有」的事。
+
+三层：`calendar` 历法与纪时 · `core` 干支与五行 · `bazi` 八字。
+`calendar` 算错了是 bug，`bazi` 结论不同可能只是口径不同。
 
 ## 场景
 
