@@ -1,6 +1,6 @@
-# tianzhi-skill · 让 AI 正确地排八字
+# tianzhi-skill · 让 AI 正确地排八字、起六壬、看紫微
 
-给 AI 用的一份说明书：**八字里所有能算的部分，交给 [tianzhi-core](https://github.com/zaoxu001/tianzhi-core) 算，模型只负责讲人话。**
+给 AI 用的一份说明书：**八字、大六壬、紫微斗数里所有能算的部分，交给 [tianzhi-core](https://github.com/zaoxu001/tianzhi-core) 算，模型只负责讲人话。**
 
 ## 为什么需要它
 

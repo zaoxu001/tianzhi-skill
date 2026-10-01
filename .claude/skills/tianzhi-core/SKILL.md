@@ -1,12 +1,12 @@
 ---
 name: tianzhi-core
-description: 东方术数的计算底座。排八字、看旺衰格局用神、算某年运势、合两个人的盘，以及干支历法与节气时刻。用户给生辰问命、问某年、问合不合时使用。判断一律调库算出，不要自行推演，也不要凭记忆写典籍出处。
+description: 东方术数的计算底座。排八字、看旺衰格局用神、算某年运势、合两个人的盘；起大六壬课、看四课三传与课体；排紫微命盘、看格局与大限流年；以及干支历法与节气时刻。用户给生辰问命、问某年、问合不合、问一件具体的事、看紫微盘时使用。判断一律调库算出，不要自行推演，也不要凭记忆写典籍出处。
 ---
 
 # tianzhi-core
 
 [天秩](https://tianzhi.live)的计算底座。东方术数各门共用同一套坐标——干支、五行、节气、长生——
-这个库把它做成代码。现阶段八字一门完整，六壬等门类在同一套底座上陆续加；历法与干支两层任何门类都能用。
+这个库把它做成代码。现在有八字、大六壬、紫微斗数三门，共用历法与干支两层底座。
 
 **为什么要用它**：模型自己推八字会算错（干支、藏干、起运岁数），也会把出处编出来
 （「《穷通宝鉴》云」后面接一句自己组织的话）。把这两件事交给库，你只负责讲人话。
@@ -22,7 +22,7 @@ pip install tianzhi-core
 ```python
 from tianzhi_core import catalog
 
-catalog.layers()                            # 三层各是什么
+catalog.layers()                            # 各层是什么
 print(catalog.as_text())                    # 全部方法：怎么调、作用、返回哪些字段
 catalog.tools('bazi')                       # 只看某一层
 catalog.describe('bazi.yongshen.select')    # 单个方法的完整说明
@@ -31,8 +31,8 @@ catalog.describe('bazi.yongshen.select')    # 单个方法的完整说明
 清单是从代码现读的：**作用取自 docstring 首行，签名取自真实签名，返回的字段取自 dataclass**。
 代码改了清单跟着改，不会出现「文档说有这个方法，装上去没有」的事。
 
-三层：`calendar` 历法与纪时 · `core` 干支与五行 · `bazi` 八字。
-`calendar` 算错了是 bug，`bazi` 结论不同可能只是口径不同。
+五层：`calendar` 历法与纪时 · `core` 干支与五行 · `bazi` 八字 · `liuren` 大六壬 · `ziwei` 紫微斗数。
+`calendar` 算错了是 bug，`bazi`、`liuren`、`ziwei` 结论不同可能只是口径（流派）不同。
 
 ## 场景
 
@@ -101,6 +101,37 @@ card = hepan.relation_card(a.quad, b.quad, a_favorable=ya.favorable, b_favorable
 
 **不要凭记忆引古籍原文。** 需要出处就读这个字段，或者不引。
 
+### 问一件具体的事：起一课大六壬
+
+```python
+from tianzhi_core.liuren import pan, zhanshi
+
+ke = pan.qike(2026, 10, 1, 14, 30)    # 起课时刻（东八区钟表时间）；报数起课传 user_number
+ke['four_classes'], ke['three_chuan'] # 四课、三传（初中末，各带六亲、天将、空亡）
+ke['keti'], ke['bifa']                # 成立的课体、毕法，各带卷次与原文
+r = zhanshi.read(ke, '事业')           # 就所问之事的论断，结构化、带出处
+```
+
+**起课时刻就是问事的此刻**，不是出生时间；同一件事不要反复起。讲的时候：先课体（总纲）→ 三传（事之起、中、归）→ 类神现不现、旺衰空亡 → 再落到所问之事。
+`zhanshi.read` 第二个参数是所问之事的类别（事业、求财、感情、出行、寻物等）。
+
+### 看紫微命盘与运限
+
+```python
+from datetime import datetime
+from tianzhi_core import ziwei
+
+zw = ziwei.build_chart(datetime(1996, 4, 18, 13, 46), 0)   # 0 男 1 女，同八字
+zw['ming'], zw['ju_name'], zw['ming_zhu'], zw['palaces']     # 命宫、五行局、命主、十二宫与各宫星曜四化
+ziwei.find_geju(zw)                                          # 成立的格局
+h = ziwei.horoscope(zw, datetime(2026, 10, 1, 12, 0))        # 此刻的大限、小限、流年、流月、流日、流时
+ziwei.judge(zw, h)                                           # 运限论断：每条带 why 与 src（出自《全书》哪一卷哪一论）
+```
+
+**出生时间先按出生地校正到真太阳时**（`calendar.solar_time.true_solar_time`），再交给 `build_chart`，否则时辰可能错一位。
+**「命主」是按命宫地支另取的一颗星，不是命宫主星**；紫微十四颗都是主星。讲的时候：命宫与三方四正（命、财、官、迁）定底色 → 四化看牵动 → 大限流年看当下。
+闰月、壬年化科等流派分歧是 `build_chart` 的参数，有默认值。
+
 ### 只要历法，不排盘
 
 ```python
@@ -114,9 +145,9 @@ ganzhi.siling_gan('辰', 12.5)            # 人元司令
 ## 约束
 
 - **凡是库能算的，一律调库**，不要因为「这个我会算」就自己推。
-- **不凭记忆写典籍出处**，读 `evidence`。
+- **不凭记忆写典籍出处**，读 `evidence`（八字）、`keti`/`bifa` 的 `text`（六壬）、`src`（紫微）。
 - **流派分歧不替用户选边**。分歧处是参数：`late_zi`（晚子时归哪天）、`use_true_solar`、
-  `yongshen.select(priority=...)`。结论对分歧敏感时说明用的哪一派。
+  `yongshen.select(priority=...)`、紫微的 `leap`（闰月）等。结论对分歧敏感时说明用的哪一派。
 - **结论落在库算出来的东西上。** 讲倾向、讲节奏、讲哪一步顺哪一步滞，都要能指回某个字段或某条判据；
   不要给医疗、法律、投资方面的专业建议。
 
